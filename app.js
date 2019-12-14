@@ -40,6 +40,22 @@ const serverHandle = (req, res) => {
 	// 解析query
 	req.query = qs.parse(url.split('?')[1])
 
+	// 解析cookie
+	req.cookie = {}
+	console.log('从前端传过来的cookie：', req.headers.cookie)
+	const cookieStr = req.headers.cookie || ''
+	cookieStr.split(';').forEach(item => {
+		if(!item) {
+			return
+		}
+		const keyvalpair = item.split('=')
+		// 因为在前端操作cookie时，默认在key前面追加一个空格，所以要去掉
+		const key = keyvalpair[0].trim()
+		const value = keyvalpair[1].trim()
+		req.cookie[key] = value
+	})
+	console.log('Cookie: ', req.cookie)
+
 	// 必须在处理所有路由之前处理 post data
 	getPostData(req).then((postData) => {
 		// 下面的所有路由都可以在req里面获取body

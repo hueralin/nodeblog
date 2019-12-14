@@ -2,7 +2,7 @@
 const { exec } = require('../db/mysql')
 
 // 用户登录
-const loginCheck = (username, password) => {
+const login = (username, password) => {
     let sql = `
         select username, realname from users where username = '${username}' and password = '${password}';
     `
@@ -14,5 +14,5 @@ const loginCheck = (username, password) => {
 }
 
 module.exports = {
-    loginCheck
+    login
 }
