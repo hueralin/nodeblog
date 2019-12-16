@@ -6,6 +6,16 @@ const { getBlogList,
         deleteBlog
     } = require('../controlloer/blog')
 
+// 统一的登录验证函数（这个函数比较通用，今后会提出来）
+const loginCheck = (req) => {
+    if(!req.session.username) {
+        return Promise.resolve(
+            new ErrorModal('尚未登录！')
+        )
+    }
+    // 验证成功，没有返回值(undefined)
+}
+
 const handleBlogRouter = (req, res) => {
     const method = req.method
     const id = req.query.id
@@ -36,9 +46,16 @@ const handleBlogRouter = (req, res) => {
         // const data = newBlog(req.body)
         // return new SuccessModel(data)
 
+        const loginCheckResult = loginCheck(req)
+        // 有返回结果，说明未登录
+        if(loginCheckResult) {
+            return loginCheckResult
+        }
+
         // 新建时必须登录，获取用户，这里只是简单模拟一下
-        const author = 'zhangsan'
-        req.body.author = author
+        // const author = 'zhangsan'
+        // req.body.author = author
+        req.body.author = req.session.username
         const result = newBlog(req.body)
         return result.then(data => {
             return new SuccessModel(data)
@@ -47,6 +64,13 @@ const handleBlogRouter = (req, res) => {
 
     // 更新博客
     if(method === 'POST' && req.path === '/api/blog/update') {
+        
+        const loginCheckResult = loginCheck(req)
+        // 有返回结果，说明未登录
+        if(loginCheckResult) {
+            return loginCheckResult
+        }
+
         const result = updateBlog(id, req.body)
         return result.then(val => {
             if(val) {
@@ -59,8 +83,17 @@ const handleBlogRouter = (req, res) => {
 
     // 删除博客
     if(method === 'POST' && req.path === '/api/blog/delete') {
+
+        const loginCheckResult = loginCheck(req)
+        // 有返回结果，说明未登录
+        if(loginCheckResult) {
+            return loginCheckResult
+        }
+
         // 假作者
-        const author = 'zhangsan'
+        // const author = 'zhangsan'
+
+        const author = req.session.username
         const result = deleteBlog(req.query.id, author)
         return result.then(val => {
             if(result) {
